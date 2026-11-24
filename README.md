@@ -1,6 +1,6 @@
 # La nocheósfera · Portafolio de Bryan González
 
-Portafolio con un paisaje de Jarabacoa que pasa de día a noche mientras haces scroll.
+Mi portafolio inspirado en la naturaliza, con cambio de dia a noche cuando haces scroll.
 Hecho con **React + Vite + Bootstrap 5** y publicado en **Cloudflare Workers**.
 
 ## Trabajar en la página

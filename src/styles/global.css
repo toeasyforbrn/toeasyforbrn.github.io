@@ -1,0 +1,344 @@
+/* =========================================================
+   La nocheósfera · estilos globales
+   Las variables --algo las actualiza useEscenaScroll() con el scroll.
+   ========================================================= */
+:root {
+  --cieloArriba: #8fcdf0;
+  --cieloAbajo: #e8f5f6;
+  --nube: #fff;
+  --nube2: #e6f2fb;
+  --humo: #fff;
+  --tinta: #1b2440;
+  --acento: #c2410c;
+  --sol: #ffd75e;
+  --fuente-titulo: 'Fraunces', Georgia, serif;
+  --fuente-texto: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: #0b0f2a;
+  color: var(--tinta);
+  font: 16px/1.6 var(--fuente-texto);
+  overflow-x: clip;
+}
+a { color: inherit; }
+
+/* ---------------- Escena (fondo fijo) ---------------- */
+.escena {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--cieloArriba), var(--cieloAbajo));
+}
+
+.estrellas { position: absolute; inset: 0; opacity: var(--estrellas, 0); }
+.estrellas i {
+  position: absolute; width: 2px; height: 2px; border-radius: 50%;
+  background: #fdf6e0; animation: titilar 3s ease-in-out infinite;
+}
+.estrellas i.grande { width: 3px; height: 3px; box-shadow: 0 0 6px #fff; }
+@keyframes titilar { 50% { opacity: 0.25; } }
+
+/* Constelaciones del fondo: solo de noche, con líneas suaves */
+.constelaciones { position: absolute; inset: 0; opacity: var(--estrellas, 0); pointer-events: none; }
+.constelaciones svg { position: absolute; height: auto; overflow: visible; animation: brillar 6s ease-in-out infinite; }
+.constelaciones line { stroke: #ffe7aa; stroke-width: 0.9; stroke-linecap: round; opacity: 0.38; }
+.constelaciones circle { fill: #fff6dc; }
+@keyframes brillar { 50% { opacity: 0.7; } }
+@media (max-width: 767.98px) { .constelaciones svg { transform: scale(1.6); transform-origin: top left; } }
+
+.sol {
+  position: absolute; right: 16%; top: 0;
+  width: clamp(90px, 10vw, 140px); aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, #fff1a8 0%, var(--sol) 58%);
+  box-shadow: 0 0 90px 40px color-mix(in srgb, var(--sol) 45%, transparent);
+  transform: translateY(var(--solY, 10vh));
+  opacity: var(--solOp, 1);
+  will-change: transform;
+}
+.luna {
+  position: absolute; right: 20%; top: 0;
+  width: clamp(80px, 8.6vw, 120px); aspect-ratio: 1; border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 40%, #ece0bd 0 9%, transparent 10%),
+    radial-gradient(circle at 62% 60%, #ece0bd 0 12%, transparent 13%),
+    radial-gradient(circle at 46% 78%, #ece0bd 0 6%, transparent 7%),
+    #fdf3d6;
+  box-shadow: 0 0 80px 30px rgba(253, 243, 214, 0.28);
+  transform: translateY(var(--lunaY, 62vh));
+  opacity: var(--lunaOp, 0);
+  will-change: transform;
+}
+
+.nube { position: absolute; left: 0; animation: cruzar linear infinite; }
+.nube svg { display: block; }
+.nube-base { fill: var(--nube); }
+.nube-luz { fill: var(--nube2); opacity: 0.7; }
+@keyframes cruzar { from { transform: translateX(-30vw); } to { transform: translateX(110vw); } }
+
+.ave { position: absolute; left: 0; width: 30px; opacity: var(--aves, 1); animation: volar linear infinite; }
+.ave svg { display: block; animation: aletear 0.45s ease-in-out infinite alternate; }
+.ave path { fill: none; stroke: #2b3350; stroke-width: 2.2; stroke-linecap: round; }
+@keyframes volar {
+  from { transform: translate(-10vw, 0); }
+  50% { transform: translate(50vw, -3vh); }
+  to { transform: translate(110vw, 1vh); }
+}
+@keyframes aletear { to { transform: scaleY(-0.5); } }
+
+/* Paisaje: tres capas + efectos, alineadas abajo */
+.paisaje {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: max(50vw, 52vh); /* 50vw = proporción exacta 2:1 del dibujo, así no se cortan montañas ni humo */
+}
+.capa {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 100%; /* igual que xMidYMax slice */
+  display: block;
+}
+.capa-atardecer { opacity: var(--atardecerOp, 0); will-change: opacity; }
+.capa-noche { opacity: var(--nocheOp, 0); will-change: opacity; }
+@media (max-width: 767.98px) {
+  .capa { object-position: 100% 100%; } /* igual que xMaxYMax slice */
+}
+
+/* Efectos animados */
+.carril {
+  fill: none; stroke: #fff; stroke-linecap: round; stroke-width: 2;
+  opacity: calc(var(--corriente, 0.75) * 0.7);
+  animation: fluir linear infinite;
+}
+.carril-1 { stroke-dasharray: 12 90; animation-duration: 9s; }
+.carril-2 { stroke-dasharray: 8 110; animation-duration: 12s; }
+@keyframes fluir { to { stroke-dashoffset: -204; } }
+
+.humo circle {
+  fill: url(#bocanada); opacity: 0;
+  transform-box: fill-box; transform-origin: center;
+  animation: bocanada 4.5s ease-out infinite;
+}
+@keyframes bocanada {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  12% { opacity: 0.75; }
+  100% { transform: translate(46px, -110px) scale(2.8); opacity: 0; }
+}
+
+.luz-ventana { opacity: var(--luces, 0); }
+.luz-ventana ellipse { animation: parpadeo 3.2s ease-in-out infinite; }
+@keyframes parpadeo { 0%, 100% { opacity: 0.8; } 45% { opacity: 0.62; } 50% { opacity: 0.85; } 70% { opacity: 0.7; } }
+
+/* Búho: llega volando en curva desde arriba a la derecha y se posa en la cerca */
+.buho-vuelo {
+  transform-box: fill-box; transform-origin: center;
+  transform:
+    translate(calc((1 - var(--buho, 0)) * 520px), calc((1 - var(--buho, 0)) * (1 - var(--buho, 0)) * -620px))
+    rotate(calc((1 - var(--buho, 0)) * -14deg));
+}
+[data-buho='oculto'] .buho { display: none; }
+.alas-abiertas, .patas, .alas-cerradas { transition: opacity 0.15s; }
+[data-buho='volando'] .alas-cerradas, [data-buho='volando'] .patas { opacity: 0; }
+[data-buho='posado'] .alas-abiertas { opacity: 0; }
+.ala { transform-box: fill-box; transform-origin: 100% 40%; }
+[data-buho='volando'] .ala { animation: aletazo 0.6s ease-in-out infinite alternate; }
+@keyframes aletazo { from { transform: rotate(-16deg); } to { transform: rotate(12deg); } }
+[data-buho='volando'] .buho-cuerpo { animation: planear 1.2s ease-in-out infinite; }
+@keyframes planear { 50% { transform: translateY(-3px); } }
+[data-buho='posado'] .buho-cuerpo { transform-box: fill-box; transform-origin: 50% 100%; animation: aterrizar 0.5s ease-out; }
+@keyframes aterrizar { 0% { transform: scale(1.06, 0.9); } 55% { transform: scale(0.97, 1.04); } 100% { transform: none; } }
+/* Parpadeo con párpados (no se aplastan los ojos) */
+.parpado { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); }
+[data-buho='posado'] .parpado { animation: parpadear 4.5s ease-in-out infinite 0.8s; }
+@keyframes parpadear { 0%, 88%, 100% { transform: scaleY(0); } 92% { transform: scaleY(1); } 96% { transform: scaleY(0); } }
+
+.luciernagas { opacity: var(--luciernagas, 0); }
+.luciernaga { animation: deambular 7s ease-in-out infinite alternate; }
+.luciernaga-centro { fill: #fbffd0; animation: pulso 1.8s ease-in-out infinite; }
+@keyframes deambular {
+  33% { transform: translate(18px, -20px); }
+  66% { transform: translate(-14px, -8px); }
+  to { transform: translate(10px, -28px); }
+}
+@keyframes pulso { 50% { opacity: 0.15; } }
+
+.mariposas { opacity: var(--mariposas, 1); }
+.mariposa-vuelo { animation: revolotear 6s ease-in-out infinite alternate; }
+.mariposa-alas { transform-box: fill-box; transform-origin: center; animation: alas 0.2s ease-in-out infinite alternate; }
+@keyframes revolotear {
+  25% { transform: translate(16px, -18px); }
+  50% { transform: translate(-10px, -30px); }
+  75% { transform: translate(20px, -12px); }
+  to { transform: translate(-6px, -24px); }
+}
+@keyframes alas { to { transform: scaleX(0.25); } }
+
+/* ---------------- Navegación ---------------- */
+.navegacion {
+  padding-block: 12px; z-index: 10;
+  background: var(--cieloArriba); /* mismo color que el cielo arriba: el contenido se corta debajo */
+}
+.marca { font: 600 20px/1 var(--fuente-titulo); color: var(--tinta) !important; letter-spacing: -0.01em; }
+.navegacion .nav-link { color: var(--tinta) !important; font-weight: 500; opacity: 0.85; }
+.navegacion .nav-link:hover, .navegacion .nav-link:focus-visible {
+  opacity: 1; text-decoration: underline; text-decoration-color: var(--acento); text-underline-offset: 5px;
+}
+.nube-o {
+  display: inline-block; width: 0.78em; height: 0.54em; margin: 0 0.03em 0 0.01em; vertical-align: -0.02em;
+  fill: #ffffff; overflow: visible;
+  animation: nubeO 5s ease-in-out infinite;
+}
+@keyframes nubeO { 50% { transform: translateX(0.05em); } }
+
+/* Cursor personalizado: es el cursor nativo del sistema con otro dibujo, así que no tiene retraso.
+   Una luciérnaga (apunta con su centro). Sobre enlaces y botones se abre un anillo de luz (CursorLuz.jsx). */
+@media (hover: hover) and (pointer: fine) {
+  html, body {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23ffd27a' fill-opacity='.22'/%3E%3Ccircle cx='12' cy='12' r='6' fill='%23ffd27a' fill-opacity='.35'/%3E%3Ccircle cx='12' cy='12' r='3.4' fill='%23fff1b8' stroke='%23141733' stroke-width='1'/%3E%3C/svg%3E") 12 12, auto;
+  }
+  a, button, [role='button'], .navbar-toggler, label {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23ffd27a' fill-opacity='.22'/%3E%3Ccircle cx='12' cy='12' r='6' fill='%23ffd27a' fill-opacity='.35'/%3E%3Ccircle cx='12' cy='12' r='3.4' fill='%23fff1b8' stroke='%23141733' stroke-width='1'/%3E%3C/svg%3E") 12 12, pointer;
+  }
+  /* Anillo de luz (ver CursorLuz.jsx): se abre rápido y se cierra un chin más lento */
+  .cursor-luz { position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none; will-change: transform; }
+  .cursor-luz span {
+    position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border-radius: 50%;
+    border: 1.6px solid #ffd27a; background: rgba(255, 210, 122, 0.16);
+    transform: scale(0.2); opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease;
+  }
+  .cursor-luz.abierto span { transform: scale(1); opacity: 1; transition-duration: 0.22s, 0.18s; }
+  .cursor-luz.morado span { border-color: #8f9bff; background: rgba(120, 132, 255, 0.18); }
+}
+@media not ((hover: hover) and (pointer: fine)) {
+  .cursor-luz { display: none; }
+}
+.boton-menu, .boton-menu:focus, .boton-menu:active, .boton-menu:focus-visible {
+  border: 0; padding: 10px 6px; background: transparent; box-shadow: none !important; outline: none !important;
+}
+.icono-menu, .icono-menu::before, .icono-menu::after {
+  display: block; width: 22px; height: 2px; background: var(--tinta); border-radius: 2px; position: relative;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), top 0.35s, width 0.35s, background-color 0.2s;
+}
+.icono-menu::before, .icono-menu::after { content: ''; position: absolute; left: 0; }
+.icono-menu::before { top: -6px; } .icono-menu::after { top: 6px; width: 14px; }
+/* Al abrir, las líneas se vuelven una X */
+.boton-menu[aria-expanded='true'] .icono-menu { background-color: transparent; }
+.boton-menu[aria-expanded='true'] .icono-menu::before { top: 0; transform: rotate(45deg); }
+.boton-menu[aria-expanded='true'] .icono-menu::after { top: 0; width: 22px; transform: rotate(-45deg); }
+/* Menú en celular: tarjeta de vidrio flotante que se despliega con animación */
+@media (max-width: 767.98px) {
+  .navegacion .navbar-collapse {
+    display: block !important; height: auto !important;
+    position: absolute; top: calc(100% + 8px); left: 12px; right: 12px;
+    padding: 8px 18px; border-radius: 18px;
+    background: rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(22px) saturate(1.2); -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    box-shadow: 0 16px 40px rgba(8, 12, 30, 0.22);
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transform: translateY(-12px) scale(0.97); transform-origin: top right;
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.4s;
+  }
+  .navegacion .navbar-collapse.show {
+    opacity: 1; visibility: visible; pointer-events: auto; transform: none;
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+  }
+  .navegacion .navbar-collapse .nav-item { opacity: 0; transform: translateY(-6px); transition: opacity 0.3s ease, transform 0.3s ease; }
+  .navegacion .navbar-collapse.show .nav-item { opacity: 1; transform: none; }
+  .navegacion .navbar-collapse.show .nav-item:nth-child(1) { transition-delay: 0.06s; }
+  .navegacion .navbar-collapse.show .nav-item:nth-child(2) { transition-delay: 0.11s; }
+  .navegacion .navbar-collapse.show .nav-item:nth-child(3) { transition-delay: 0.16s; }
+  .navegacion .navbar-collapse.show .nav-item:nth-child(4) { transition-delay: 0.21s; }
+  .navegacion .nav-link { padding: 10px 0; font-size: 17px; }
+}
+
+/* ---------------- Contenido ---------------- */
+.contenido { position: relative; z-index: 2; }
+.seccion { padding: clamp(84px, 13vh, 140px) 0 clamp(40px, 8vh, 90px); }
+#inicio { min-height: 88vh; } /* el inicio deja ver el paisaje de día */
+#contacto { padding-bottom: 42vh; } /* al final queda espacio para ver la noche */
+.seccion .container { max-width: 1240px; }
+h1, h2, h3 { font-family: var(--fuente-titulo); font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; text-wrap: balance; }
+.titulo-principal { font-size: clamp(46px, 8vw, 104px); margin-bottom: 18px; }
+h2 { font-size: clamp(34px, 4.6vw, 52px); margin-bottom: 16px; }
+p { max-width: 58ch; font-size: 17px; }
+.entrada { font-size: clamp(18px, 2vw, 21px); }
+
+.revelar { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s ease; }
+.revelar.visible { opacity: 1; transform: none; }
+
+/* Paneles de vidrio oscuro: se leen igual de día y de noche */
+.panel {
+  padding: clamp(18px, 2.4vw, 28px); border-radius: 14px;
+  background: rgba(30, 42, 66, 0.78); /* sin desenfoque: más opaco para que se lea */
+  border: 0;
+  color: #f5f1e8;
+  box-shadow: 0 10px 30px rgba(8, 12, 30, 0.18);
+}
+/* Desenfoque solo en el recuadro de "Quién soy" */
+.panel-blur {
+  background: rgba(62, 82, 104, 0.42);
+  backdrop-filter: blur(22px) saturate(1.15); -webkit-backdrop-filter: blur(22px) saturate(1.15);
+}
+.panel p { max-width: 68ch; }
+.panel strong { color: #ffe3a3; font-weight: 600; }
+.panel-titulo { font-size: 22px; margin-bottom: 14px; color: #f3c45c; }
+.lista-trayectoria { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.lista-trayectoria li { padding-left: 14px; border-left: 2px solid rgba(243, 196, 92, 0.55); }
+.lista-trayectoria strong { display: block; color: #f5f1e8; font-size: 16px; }
+.lista-trayectoria span { display: block; font-size: 15px; opacity: 0.85; }
+.lista-trayectoria small { display: block; font-size: 13px; color: #ffd27a; margin-top: 2px; }
+.lista-trayectoria p { font-size: 15px; margin: 6px 0 0; opacity: 0.85; }
+.verificar { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 600; color: #ffd27a; text-decoration: none; }
+.verificar:hover, .verificar:focus-visible { text-decoration: underline; }
+
+.proyecto { display: flex; flex-direction: column; gap: 10px; }
+.proyecto-tipo { font-size: 13px; color: #f3c45c; font-weight: 600; }
+.proyecto h3 { font-size: clamp(22px, 2.4vw, 26px); margin: 0; }
+.proyecto p { margin: 0; font-size: 16px; opacity: 0.9; }
+.estado {
+  display: inline-block; margin-left: 8px; vertical-align: middle;
+  font: 600 12px/1.6 var(--fuente-texto); padding: 1px 10px; border-radius: 99px;
+  border: 1px solid #ffd27a; color: #ffd27a; white-space: nowrap;
+}
+.etiquetas { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12.5px; font-weight: 600; }
+.etiquetas span { padding: 2px 10px; border-radius: 99px; background: rgba(255, 255, 255, 0.12); color: #ffe3a3; }
+.ver-proyecto { margin-top: auto; font-weight: 600; font-size: 15px; text-decoration: none; padding: 8px 0; color: #ffd27a; }
+.ver-proyecto:hover, .ver-proyecto:focus-visible { text-decoration: underline; }
+
+/* Botón de idioma en el menú */
+.boton-idioma {
+  display: inline-flex; align-items: center; gap: 2px; padding: 3px; min-height: 36px;
+  border-radius: 99px; border: 1px solid color-mix(in srgb, var(--tinta) 35%, transparent);
+  background: transparent; color: var(--tinta); font: 600 13px var(--fuente-texto); cursor: pointer;
+}
+.boton-idioma span { padding: 4px 10px; border-radius: 99px; opacity: 0.7; }
+.boton-idioma span.activo { background: var(--tinta); color: var(--cieloArriba); opacity: 1; }
+.boton-idioma:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+
+.pie { position: relative; z-index: 2; text-align: center; padding: 0 16px 30px; color: #f5f1e8; }
+.pie p { margin: 0 auto; max-width: none; font: italic 400 17px var(--fuente-titulo); opacity: 0.85; }
+.redes { list-style: none; display: flex; justify-content: center; gap: 14px; padding: 0; margin: 0 0 14px; }
+.redes a {
+  display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%;
+  color: #f5f1e8; background: rgba(62, 82, 104, 0.42);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.redes svg { width: 20px; height: 20px; display: block; }
+.redes a:hover, .redes a:focus-visible { color: #ffd27a; transform: translateY(-3px); box-shadow: 0 6px 22px rgba(255, 210, 122, 0.3); }
+.redes a.red-discord:hover, .redes a.red-discord:focus-visible { color: #a3acff; box-shadow: 0 6px 22px rgba(120, 132, 255, 0.45); }
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 3px; }
+
+/* Celular */
+@media (max-width: 767.98px) {
+}
+
+/* Para quien prefiere menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+  .revelar { opacity: 1; transform: none; }
+}
